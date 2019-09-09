@@ -4,6 +4,7 @@ exports.login = () => {};
 exports.logout = () => {};
 exports.register = (req, res) => {
   let user = new User(req.body);
+  console.log(user);
   user.register();
   if (user.errors.length) {
     res.send(user.errors);
