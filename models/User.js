@@ -1,3 +1,5 @@
+const usersCollection = require("../db").collection("users");
+
 const validator = require("validator");
 class User {
   constructor(data) {
@@ -22,8 +24,6 @@ class User {
     };
   }
   validate() {
-    //Step #1 :validate user data
-
     if (this.data.username == "") {
       this.errors.push("You must provide a username.");
     }
@@ -56,10 +56,14 @@ class User {
   }
 
   register() {
-    // Step #2: Only if there are no validation errors
-    // then save the user data into a database.
+    //Step #1 :validate user data
     this.cleanUp();
     this.validate();
+    if (!this.errors.length) {
+      usersCollection.insertOne(this.data);
+    }
+    // Step #2: Only if there are no validation errors
+    // then save the user data into a database.
   }
 }
 
