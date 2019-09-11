@@ -23,6 +23,7 @@ class User {
       password: this.data.password
     };
   }
+  //Step #1 :validate user data
   validate() {
     if (this.data.username == "") {
       this.errors.push("You must provide a username.");
@@ -55,15 +56,28 @@ class User {
     } //validate password
   }
 
+  login(callback) {
+    this.cleanUp();
+    usersCollection.findOne(
+      { username: this.data.username },
+      (err, attemptedUser) => {
+        if (attemptedUser && attemptedUser.password == this.data.password) {
+          callback("correct username &password");
+        } else {
+          callback("your username and password are correct");
+        }
+      }
+    );
+  }
+
   register() {
-    //Step #1 :validate user data
+    // Step #2: Only if there are no validation errors
+    // then save the user data into a database.
     this.cleanUp();
     this.validate();
     if (!this.errors.length) {
       usersCollection.insertOne(this.data);
     }
-    // Step #2: Only if there are no validation errors
-    // then save the user data into a database.
   }
 }
 
