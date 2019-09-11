@@ -56,18 +56,24 @@ class User {
     } //validate password
   }
 
-  login(callback) {
-    this.cleanUp();
-    usersCollection.findOne(
-      { username: this.data.username },
-      (err, attemptedUser) => {
-        if (attemptedUser && attemptedUser.password == this.data.password) {
-          callback("correct username &password");
-        } else {
-          callback("your username and password are correct");
-        }
-      }
-    );
+  login() {
+    return new Promise((resolve, reject) => {
+      this.cleanUp();
+      usersCollection
+        .findOne({ username: this.data.username })
+        .then(attemptedUser => {
+          if (attemptedUser && attemptedUser.password == this.data.password) {
+            resolve("correct username &password through promise resolve");
+          } else {
+            reject(
+              "your username and password are not correct through promise reject"
+            );
+          }
+        })
+        .catch(e => {
+          reject("Error happens, please try again later.");
+        });
+    });
   }
 
   register() {
