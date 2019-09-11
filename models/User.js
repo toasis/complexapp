@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const usersCollection = require("../db").collection("users");
 
 const validator = require("validator");
@@ -62,7 +63,10 @@ class User {
       usersCollection
         .findOne({ username: this.data.username })
         .then(attemptedUser => {
-          if (attemptedUser && attemptedUser.password == this.data.password) {
+          if (
+            attemptedUser &&
+            bcrypt.compareSync(this.data.password, attemptedUser.password)
+          ) {
             resolve("correct username &password through promise resolve");
           } else {
             reject(
@@ -82,6 +86,9 @@ class User {
     this.cleanUp();
     this.validate();
     if (!this.errors.length) {
+      // hash user pasword
+      let salt = bcrypt.genSaltSync(10);
+      this.data.password = bcrypt.hashSync(this.data.password, salt);
       usersCollection.insertOne(this.data);
     }
   }
