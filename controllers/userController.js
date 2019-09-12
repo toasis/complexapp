@@ -15,6 +15,10 @@ exports.login = (req, res) => {
   user
     .login()
     .then(result => {
+      req.session.user = {
+        favColor: "blue",
+        username: user.data.username
+      };
       res.send(result);
     })
     .catch(e => {
@@ -23,5 +27,10 @@ exports.login = (req, res) => {
 };
 exports.logout = () => {};
 exports.home = (req, res) => {
-  res.render("home-guest");
+  if (req.session.user) {
+    console.log(req.session.user);
+    res.render("home-dashboard", { username: req.session.user.username });
+  } else {
+    res.render("home-guest");
+  }
 };

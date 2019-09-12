@@ -15,25 +15,35 @@
     "@babel/preset-env": "^7.5.5",
     "@sendgrid/mail": "^6.4.0",
     "axios": "^0.19.0",
+    //Promise based HTTP client for the browser and node.js
     "babel-loader": "^8.0.6",
     "bcryptjs": "^2.4.3",
+    //Using bcrypt is a secured way to store passwords in my database
     "connect-flash": "^0.1.1",
     "connect-mongo": "^3.0.0",
+    //MongoDB session store for Connect and Express
     "cors": "^2.8.5",
     "csurf": "^1.10.0",
     "dompurify": "^1.0.11",
+    //
     "dotenv": "^8.1.0",
+    //Dotenv is a zero-dependency module that loads environment variables from a .env file into process.env . Storing configuration in the environment separate from code is based on The Twelve-Factor App methodology.
     "ejs": "^2.6.2",
+    //Embedded JavaScript templating.
     "express": "^4.17.1",
     "express-session": "^1.16.2",
     "jsonwebtoken": "^8.5.1",
     "marked": "^0.7.0",
     "md5": "^2.2.1",
     "mongodb": "^3.3.0",
+    // MongoDB is a general purpose, document-based, distributed database built for modern application developers and for the cloud era.
     "nodemon": "^1.19.1",
+    //Nodemon is a utility that will monitor for any changes in your source and automatically restart your server.
     "sanitize-html": "^1.20.1",
+    //sanitize-html provides a simple HTML sanitizer with a clear API.
     "socket.io": "^2.2.0",
     "validator": "^11.1.0",
+    //A library of string validators and sanitizers.
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.7"
   }
