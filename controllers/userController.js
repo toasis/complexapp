@@ -19,13 +19,20 @@ exports.login = (req, res) => {
         favColor: "blue",
         username: user.data.username
       };
-      res.send(result);
+      req.session.save(() => {
+        res.redirect("/");
+      });
     })
     .catch(e => {
       res.send(e);
     });
 };
-exports.logout = () => {};
+
+exports.logout = (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+};
 exports.home = (req, res) => {
   if (req.session.user) {
     console.log(req.session.user);
