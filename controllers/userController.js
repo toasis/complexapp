@@ -6,7 +6,7 @@ exports.register = (req, res) => {
   user
     .register()
     .then(() => {
-      req.session.user = { username: user.data.username };
+      req.session.user = { avatar: user.avatar, username: user.data.username };
       req.session.save(() => {
         res.redirect("/");
       });
@@ -26,7 +26,7 @@ exports.login = (req, res) => {
     .login()
     .then(result => {
       req.session.user = {
-        favColor: "blue",
+        avatar: user.avatar,
         username: user.data.username
       };
       req.session.save(() => {
@@ -49,7 +49,10 @@ exports.logout = (req, res) => {
 exports.home = (req, res) => {
   if (req.session.user) {
     console.log(req.session.user);
-    res.render("home-dashboard", { username: req.session.user.username });
+    res.render("home-dashboard", {
+      username: req.session.user.username,
+      avatar: req.session.user.avatar
+    });
   } else {
     res.render("home-guest", {
       errors: req.flash("errors"),

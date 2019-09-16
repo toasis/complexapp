@@ -4,6 +4,7 @@ const usersCollection = require("../db")
   .collection("users");
 
 const validator = require("validator");
+const md5 = require("md5");
 class User {
   constructor(data) {
     this.data = data;
@@ -97,7 +98,11 @@ class User {
             attemptedUser &&
             bcrypt.compareSync(this.data.password, attemptedUser.password)
           ) {
-            resolve("correct username &password through promise resolve");
+            this.data = attemptedUser;
+            this.getAvatar();
+            resolve(
+              "Congrats! Correct username &password through promise resolve"
+            );
           } else {
             reject(
               "your username and password are not correct through promise reject"
@@ -121,11 +126,16 @@ class User {
         let salt = bcrypt.genSaltSync(10);
         this.data.password = bcrypt.hashSync(this.data.password, salt);
         await usersCollection.insertOne(this.data);
+        this.getAvatar();
         resolve();
       } else {
         reject(this.errors);
       }
     });
+  }
+
+  getAvatar() {
+    this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`;
   }
 }
 
