@@ -3,12 +3,22 @@ const User = require("../models/User");
 exports.register = (req, res) => {
   let user = new User(req.body);
   console.log(user);
-  user.register();
-  if (user.errors.length) {
-    res.send(user.errors);
-  } else {
-    res.send("Congrats, there are no errors");
-  }
+  user
+    .register()
+    .then(() => {
+      req.session.user = { username: user.data.username };
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    })
+    .catch(regErrors => {
+      regErrors.map(error => {
+        req.flash("regErrors", error);
+      });
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    });
 };
 exports.login = (req, res) => {
   let user = new User(req.body);
@@ -41,6 +51,9 @@ exports.home = (req, res) => {
     console.log(req.session.user);
     res.render("home-dashboard", { username: req.session.user.username });
   } else {
-    res.render("home-guest", { errors: req.flash("errors") });
+    res.render("home-guest", {
+      errors: req.flash("errors"),
+      regErrors: req.flash("regErrors")
+    });
   }
 };
