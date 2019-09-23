@@ -6,9 +6,15 @@ const usersCollection = require("../db")
 const validator = require("validator");
 const md5 = require("md5");
 class User {
-  constructor(data) {
+  constructor(data, getAvatar) {
     this.data = data;
     this.errors = [];
+    if (getAvatar == undefined) {
+      getAvatar = false;
+    }
+    if (getAvatar) {
+      this.getAvatar();
+    }
   }
   cleanUp() {
     if (typeof this.data.username != "string") {
