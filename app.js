@@ -19,6 +19,13 @@ app.use(sessionOptions);
 app.use(flash());
 
 app.use((req, res, next) => {
+  //make current user id available on req object
+  if (req.session.user) {
+    req.visitorId = req.session.user_id;
+  } else {
+    req.visitorId = 0;
+  }
+  //make MongoDb's session user data available from within ejs templates
   res.locals.user = req.session.user;
   next();
 });

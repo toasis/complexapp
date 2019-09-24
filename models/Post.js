@@ -53,7 +53,7 @@ class Post {
     });
   }
 }
-Post.reusablePostQuery = uniqueOperations => {
+Post.reusablePostQuery = (uniqueOperations, visitorId) => {
   return new Promise(async (resolve, reject) => {
     let aggOperations = uniqueOperations.concat([
       {
@@ -69,6 +69,7 @@ Post.reusablePostQuery = uniqueOperations => {
           title: 1,
           body: 1,
           createdDate: 1,
+          authorId: "$author",
           author: { $arrayElemAt: ["$authorDocument", 0] }
         }
       }
@@ -76,24 +77,28 @@ Post.reusablePostQuery = uniqueOperations => {
     let posts = await postsCollection.aggregate(aggOperations).toArray();
     //clean up author property in each post object
     posts = posts.map(post => {
+      post.isVisitorOwner = post.authorId.equals(visitorId);
       post.author = {
         username: post.author.username,
         avatar: new User(post.author, true).avatar
       };
+      console.log("this is the post object:", post);
       return post;
     });
+
     resolve(posts);
   });
 };
-Post.findSingleById = id => {
+Post.findSingleById = (id, visitorId) => {
   return new Promise(async (resolve, reject) => {
     if (typeof id !== "string" || !ObjectID.isValid(id)) {
       reject();
       return;
     }
-    let posts = await Post.reusablePostQuery([
-      { $match: { _id: new ObjectID(id) } }
-    ]);
+    let posts = await Post.reusablePostQuery(
+      [{ $match: { _id: new ObjectID(id) } }],
+      visitorId
+    );
     if (posts.length) {
       console.log(posts[0]);
       resolve(posts[0]);
