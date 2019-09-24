@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const usersCollection = require("../db")
   .db()
   .collection("users");
-
+console.log(usersCollection);
 const validator = require("validator");
 const md5 = require("md5");
 class User {
@@ -16,6 +16,7 @@ class User {
       this.getAvatar();
     }
   }
+
   cleanUp() {
     if (typeof this.data.username != "string") {
       this.data.username = "";
@@ -144,5 +145,32 @@ class User {
     this.avatar = `https://gravatar.com/avatar/${md5(this.data.email)}?s=128`;
   }
 }
+//class User's data & its method above
 
+User.findByUsername = username => {
+  return new Promise((resolve, reject) => {
+    if (typeof username != "string") {
+      reject();
+      return;
+    }
+    usersCollection
+      .findOne({ username: username })
+      .then(userDoc => {
+        if (userDoc) {
+          userDoc = new User(userDoc, true);
+          userDoc = {
+            _id: userDoc.data._id,
+            username: userDoc.data.username,
+            avatar: userDoc.avatar
+          };
+          resolve(userDoc);
+        } else {
+          reject();
+        }
+      })
+      .catch(() => {
+        reject();
+      });
+  });
+};
 module.exports = User;
