@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const usersCollection = require("../db")
   .db()
   .collection("users");
-console.log(usersCollection);
+// console.log(usersCollection);
 const validator = require("validator");
 const md5 = require("md5");
 class User {
