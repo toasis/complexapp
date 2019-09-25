@@ -53,11 +53,12 @@ class Post {
       }
     });
   }
+
   update() {
     return new Promise(async (resolve, reject) => {
       try {
         let post = await Post.findSingleById(this.requestedPostId, this.userid);
-        if (post.isVisitorOwner) {
+        if (!post.isVisitorOwner) {
           //actually update db
           let status = await this.actuallyUpdate();
           resolve(status);

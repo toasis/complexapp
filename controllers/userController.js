@@ -65,7 +65,7 @@ exports.logout = (req, res) => {
 };
 exports.home = (req, res) => {
   if (req.session.user) {
-    console.log(req.session.user);
+    // console.log(req.session.user);
     res.render("home-dashboard");
   } else {
     res.render("home-guest", {

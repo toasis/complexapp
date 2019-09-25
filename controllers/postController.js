@@ -42,7 +42,7 @@ exports.edit = (req, res) => {
       //OR user did have permission, but there were validation errors
       if (status == "success") {
         //post was update to db
-        req.flash("success", "Post successfully updated");
+        req.flash("success", "Post successfully updated.");
         req.session.save(() => {
           res.redirect(`/post/${req.params.id}/edit`);
         });
@@ -51,7 +51,7 @@ exports.edit = (req, res) => {
           req.flash("errors", error);
         });
         req.session.save(() => {
-          res.redirect(`/post/${req.params.id}`);
+          res.redirect(`/post/${req.params.id}/edit`);
         });
       }
     })
