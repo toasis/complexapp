@@ -4,10 +4,11 @@ const postsCollection = require("../db")
 const ObjectID = require("mongodb").ObjectID;
 const User = require("./User");
 class Post {
-  constructor(data, userid) {
+  constructor(data, userid, requestedPostId) {
     this.data = data;
     this.errors = [];
     this.userid = userid;
+    this.requestedPostId = requestedPostId;
   }
   cleanUp() {
     if (typeof this.data.title != "string") {
@@ -52,7 +53,40 @@ class Post {
       }
     });
   }
+  update() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let post = await Post.findSingleById(this.requestedPostId, this.userid);
+        if (post.isVisitorOwner) {
+          //actually update db
+          let status = await this.actuallyUpdate();
+          resolve(status);
+        } else {
+          reject();
+        }
+      } catch {
+        reject();
+      }
+    });
+  }
+
+  actuallyUpdate() {
+    return new Promise(async (resolve, reject) => {
+      this.cleanUp();
+      this.validate();
+      if (!this.errors.length) {
+        await postsCollection.findOneAndUpdate(
+          { _id: new ObjectID(this.requestedPostId) },
+          { $set: { title: this.data.title, body: this.data.body } }
+        );
+        resolve("success");
+      } else {
+        resolve("failure");
+      }
+    });
+  }
 }
+
 Post.reusablePostQuery = (uniqueOperations, visitorId) => {
   return new Promise(async (resolve, reject) => {
     let aggOperations = uniqueOperations.concat([
