@@ -12,30 +12,6 @@ exports.mustBeLoggedIn = (req, res, next) => {
   }
 };
 
-exports.register = (req, res) => {
-  let user = new User(req.body);
-  console.log(user);
-  user
-    .register()
-    .then(() => {
-      req.session.user = {
-        avatar: user.avatar,
-        username: user.data.username,
-        _id: user.data._id
-      };
-      req.session.save(() => {
-        res.redirect("/");
-      });
-    })
-    .catch(regErrors => {
-      regErrors.map(error => {
-        req.flash("regErrors", error);
-      });
-      req.session.save(() => {
-        res.redirect("/");
-      });
-    });
-};
 exports.login = (req, res) => {
   let user = new User(req.body);
   user
@@ -63,6 +39,32 @@ exports.logout = (req, res) => {
     res.redirect("/");
   });
 };
+
+exports.register = (req, res) => {
+  let user = new User(req.body);
+  console.log(user);
+  user
+    .register()
+    .then(() => {
+      req.session.user = {
+        avatar: user.avatar,
+        username: user.data.username,
+        _id: user.data._id
+      };
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    })
+    .catch(regErrors => {
+      regErrors.map(error => {
+        req.flash("regErrors", error);
+      });
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    });
+};
+
 exports.home = (req, res) => {
   if (req.session.user) {
     // console.log(req.session.user);

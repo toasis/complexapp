@@ -3,6 +3,7 @@ const postsCollection = require("../db")
   .collection("posts");
 const ObjectID = require("mongodb").ObjectID;
 const User = require("./User");
+const sanitizeHTML = require("sanitize-html");
 class Post {
   constructor(data, userid, requestedPostId) {
     this.data = data;
@@ -19,8 +20,14 @@ class Post {
     }
     //get rid of any bogus  properties
     this.data = {
-      title: this.data.title.trim(),
-      body: this.data.body.trim(),
+      title: sanitizeHTML(this.data.title.trim(), {
+        allowedTags: [],
+        allowedAttributes: {}
+      }),
+      body: sanitizeHTML(this.data.body.trim(), {
+        allowedTags: [],
+        allowedAttributes: {}
+      }),
       createdDate: new Date(),
       author: ObjectID(this.userid)
     };
@@ -41,8 +48,8 @@ class Post {
         //save  post into database
         postsCollection
           .insertOne(this.data)
-          .then(() => {
-            resolve();
+          .then(info => {
+            resolve(info.ops[0]._id);
           })
           .catch(() => {
             this.errors.push("please try again later");
@@ -57,8 +64,11 @@ class Post {
   update() {
     return new Promise(async (resolve, reject) => {
       try {
-        let post = await Post.findSingleById(this.requestedPostId, this.userid);
-        if (!post.isVisitorOwner) {
+        let post = await Post.findSinglePostByPostId(
+          this.requestedPostId,
+          this.userid
+        );
+        if (post.isVisitorOwner) {
           //actually update db
           let status = await this.actuallyUpdate();
           resolve(status);
@@ -124,9 +134,9 @@ Post.reusablePostQuery = (uniqueOperations, visitorId) => {
     resolve(posts);
   });
 };
-Post.findSingleById = (id, visitorId) => {
+Post.findSinglePostByPostId = (id, visitorId) => {
   return new Promise(async (resolve, reject) => {
-    if (typeof id !== "string" || !ObjectID.isValid(id)) {
+    if (typeof id != "string" || !ObjectID.isValid(id)) {
       reject();
       return;
     }
@@ -149,4 +159,21 @@ Post.findByAuthorId = authorId => {
     { $sort: { createdDate: -1 } }
   ]);
 };
+
+Post.delete = (postIdToDelete, currentUserId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let post = await Post.findSinglePostByPostId(
+        postIdToDelete,
+        currentUserId
+      );
+      if (post.isVisitorOwner) {
+        post.Collection.deleteOne({ _id: new ObjectID(postIdToDelete) });
+      } else {
+        reject();
+      }
+    } catch (e) {}
+  });
+};
+
 module.exports = Post;

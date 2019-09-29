@@ -8,26 +8,42 @@ exports.create = (req, res) => {
   let post = new Post(req.body, req.session.user._id);
   post
     .create()
-    .then(() => {
-      res.send("New post created.");
+    .then(newId => {
+      req.flash("success", "New post successfully created");
+      req.session.save(() => {
+        res.redirect(`/post/${newId}`);
+      });
     })
     .catch(errors => {
-      res.send(errors);
+      errors.forEach(error => {
+        req.flash("errors", errors);
+      });
+      req.session.save(() => {
+        res.redirect("create/post");
+      });
     });
 };
-exports.viewSingle = async (req, res) => {
+exports.viewSinglePost = async (req, res) => {
   try {
-    let post = await Post.findSingleById(req.params.id, req.visitorId);
+    let post = await Post.findSinglePostByPostId(req.params.id, req.visitorId);
     res.render("single-post-screen", { post: post });
   } catch (e) {
     res.render("404");
   }
 };
 
-exports.viewEditScreen = async (req, res) => {
+exports.viewEditPostScreen = async (req, res) => {
   try {
-    let post = await Post.findSingleById(req.params.id);
-    res.render("edit-post", { post: post });
+    let post = await Post.findSinglePostByPostId(req.params.id, req.visitorId);
+
+    if (post.isVisitorOwner) {
+      res.render("edit-post", { post: post });
+    } else {
+      req.flash("errors", "You do not have permission to perform this action.");
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    }
   } catch (e) {
     res.render("404");
   }
@@ -60,6 +76,22 @@ exports.edit = (req, res) => {
       // OR if the current visitor is not the owner of the request post
       req.flash("errors", "You do not have permission to perform that action");
       res.session.save(() => {
+        res.redirect("/");
+      });
+    });
+};
+
+exports.delete = (req, res) => {
+  Post.delete(req.params.id, req.visitorId)
+    .then(() => {
+      req.flash("success", "Post Successfully deleted");
+      req.session.save(() => {
+        res.redirect(`/profile/${req.session.user.username}`);
+      });
+    })
+    .catch(() => {
+      req.flash("errors", "You do not have permission to perform that action");
+      req.session.save(() => {
         res.redirect("/");
       });
     });
