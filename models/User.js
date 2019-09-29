@@ -107,6 +107,7 @@ class User {
           ) {
             this.data = attemptedUser;
             this.getAvatar();
+
             resolve(
               "Congrats! Correct username &password through promise resolve"
             );

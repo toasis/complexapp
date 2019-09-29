@@ -168,7 +168,7 @@ Post.delete = (postIdToDelete, currentUserId) => {
         currentUserId
       );
       if (post.isVisitorOwner) {
-        post.Collection.deleteOne({ _id: new ObjectID(postIdToDelete) });
+        postsCollection.deleteOne({ _id: new ObjectID(postIdToDelete) });
       } else {
         reject();
       }
