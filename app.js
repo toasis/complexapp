@@ -17,9 +17,9 @@ let sessionOptions = session({
 app.use(sessionOptions);
 app.use(flash());
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   // make our markdown function available from within ejs templates
-  res.locals.filterUserHTML = function(content) {
+  res.locals.filterUserHTML = content => {
     return sanitizeHTML(markdown(content), {
       allowedTags: [
         "p",
